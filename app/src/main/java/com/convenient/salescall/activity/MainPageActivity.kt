@@ -163,7 +163,7 @@ class MainPageActivity : AppCompatActivity() {
     @RequiresPermission(allOf = [Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_NUMBERS, Manifest.permission.READ_PHONE_STATE])
     override fun onResume() {
         super.onResume()
-        LogUtils.d(TAG, "onResume")
+//        LogUtils.d(TAG, "onResume")
 //        try {
 //            lifecycleScope.launch {
 //                withContext(Dispatchers.IO) {
