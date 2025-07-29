@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:text="账号登录"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:paddingHorizontal="20dp">
+
+        <TextView
+            android:id="@+id/user_hint"
+            android:layout_width="80dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="15dp"
+            android:gravity="center_vertical"
+            android:text="用户名"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/user_input"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center_vertical|left"
+            android:hint="请输入用户名"
+            android:inputType="text"
+            android:lines="1"
+            android:maxLength="18"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@color/white"
+            android:textColorHint="#A4A4A4"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/user_hint"
+            app:layout_constraintLeft_toRightOf="@id/user_hint"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/user_hint"
+            tools:text="gtd" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#ccc"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user_hint" />
+
+        <TextView
+            android:id="@+id/pw_hint"
+            android:layout_width="80dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="15dp"
+            android:gravity="center_vertical"
+            android:text="密码"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user_hint" />
+
+        <EditText
+            android:id="@+id/pw_input"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center_vertical|left"
+            android:hint="请输入密码"
+            android:inputType="text"
+            android:maxLength="24"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@color/white"
+            android:textColorHint="#A4A4A4"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/pw_hint"
+            app:layout_constraintLeft_toRightOf="@id/pw_hint"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/pw_hint"
+            tools:text="N@DU3Mjgs-" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#ccc"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pw_hint" />
+
+        <TextView
+            android:id="@+id/code_hint"
+            android:layout_width="80dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="15dp"
+            android:gravity="center_vertical"
+            android:text="验证码"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pw_hint" />
+
+        <EditText
+            android:id="@+id/code_input"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginRight="30dp"
+            android:background="@null"
+            android:gravity="center_vertical|left"
+            android:hint="请输入验证结果码"
+            android:inputType="number"
+            android:maxLength="12"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textColorHint="#A4A4A4"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/code_hint"
+            app:layout_constraintLeft_toRightOf="@id/code_hint"
+            app:layout_constraintRight_toLeftOf="@id/verify_iv"
+            app:layout_constraintTop_toTopOf="@id/code_hint" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#ccc"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/code_hint" />
+
+        <ImageView
+            android:id="@+id/verify_iv"
+            android:layout_width="100dp"
+            android:layout_height="0dp"
+            android:layout_marginRight="12dp"
+            app:layout_constraintBottom_toBottomOf="@id/code_hint"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/code_hint" />
+
+
+        <!--            android:button="@drawable/checkbox_circle"-->
+        <CheckBox
+            android:id="@+id/auto_login_cb"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="80dp"
+            android:checked="true"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/code_hint" />
+
+        <TextView
+            android:id="@+id/login_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="15dp"
+            android:gravity="center"
+            android:text="自动登录"
+            android:textColor="#666"
+            app:layout_constraintBottom_toBottomOf="@id/auto_login_cb"
+            app:layout_constraintLeft_toRightOf="@id/auto_login_cb"
+            app:layout_constraintTop_toTopOf="@id/auto_login_cb" />
+
+
+        <TextView
+            android:id="@+id/login_btn"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginHorizontal="48dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/login_btn_bg"
+            android:gravity="center"
+            android:text="登 录"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_hint" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</RelativeLayout>

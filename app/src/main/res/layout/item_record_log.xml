@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="12dp">
+
+    <!-- 第一排：文件名.格式 -->
+    <TextView
+        android:id="@+id/tvFileName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        tools:text="录音文件名.MP3"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 第二排：创建时间 -->
+    <TextView
+        android:id="@+id/tvCreateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        tools:text="2023/12/01"
+        android:textColor="#999"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFileName" />
+
+    <!-- 分隔符 -->
+    <TextView
+        android:id="@+id/tvSeparator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:text="  |  "
+        android:textColor="#999"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/tvCreateTime"
+        app:layout_constraintTop_toBottomOf="@+id/tvFileName" />
+
+    <!-- 第二排：文件大小 -->
+    <TextView
+        android:id="@+id/tvFileSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        tools:text="2.5 MB"
+        android:textColor="#999"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/tvSeparator"
+        app:layout_constraintTop_toBottomOf="@+id/tvFileName" />
+
+    <!-- 第二排：上传状态（与日期信息垂直对齐） -->
+    <TextView
+        android:id="@+id/tvUploadStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        tools:text="未上传"
+        android:textColor="#FFA500"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFileName" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

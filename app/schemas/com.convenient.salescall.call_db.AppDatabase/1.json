@@ -1,0 +1,88 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "f1bd425e37b6f01b93a28018b91af345",
+    "entities": [
+      {
+        "tableName": "call_record",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`callLogId` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `callerNumber` TEXT NOT NULL, `mobile` TEXT NOT NULL, `callStartTime` INTEGER NOT NULL, `isConnected` INTEGER NOT NULL, `callEndTime` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `isUploaded` INTEGER NOT NULL, `recordFilePath` TEXT NOT NULL, PRIMARY KEY(`callLogId`))",
+        "fields": [
+          {
+            "fieldPath": "callLogId",
+            "columnName": "callLogId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "callerNumber",
+            "columnName": "callerNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mobile",
+            "columnName": "mobile",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "callStartTime",
+            "columnName": "callStartTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isConnected",
+            "columnName": "isConnected",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "callEndTime",
+            "columnName": "callEndTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "durationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isUploaded",
+            "columnName": "isUploaded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordFilePath",
+            "columnName": "recordFilePath",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "callLogId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f1bd425e37b6f01b93a28018b91af345')"
+    ]
+  }
+}

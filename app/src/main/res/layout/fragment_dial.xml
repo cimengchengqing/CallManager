@@ -1,0 +1,240 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000"
+    android:paddingVertical="24dp">
+
+    <!-- 号码显示区 -->
+    <RelativeLayout
+        android:id="@+id/call_num"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_above="@id/num_grid"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="40dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:paddingEnd="8dp"
+            android:text=""
+            android:textColor="#4CAF50"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <!-- 删除按钮（图标按钮，放右上角） -->
+        <ImageView
+            android:id="@+id/btnDelete"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="10dp"
+            android:contentDescription="删除"
+            android:src="@drawable/icon_delete"
+            android:visibility="gone"
+            app:tint="#888888" />
+
+    </RelativeLayout>
+
+    <!-- 拨号键盘 -->
+    <GridLayout
+        android:id="@+id/num_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/call_btn"
+        android:layout_gravity="center"
+        android:columnCount="3"
+        android:rowCount="4">
+
+
+        <!-- 数字键 1-9, 0, *, # -->
+        <Button
+            android:id="@+id/btn1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn2"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="2"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="2"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn3"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="3"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="3"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn4"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="4"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn5"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="5"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn6"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="6"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn7"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="7"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn8"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="8"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn9"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="9"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- 特殊键 -->
+        <Button
+            android:id="@+id/btnStar"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="*"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn0"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="0"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnPound"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@drawable/bg_dial_key_black"
+            android:stateListAnimator="@null"
+            android:text="#"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+    </GridLayout>
+
+    <!-- 拨号按钮 -->
+    <LinearLayout
+        android:id="@+id/call_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginVertical="20dp"
+        android:background="#000"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnCall"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/bg_call_btn"
+            android:contentDescription="拨打"
+            android:elevation="4dp"
+            android:src="@android:drawable/ic_menu_call"
+            app:tint="#FFFFFF" />
+    </LinearLayout>
+</RelativeLayout>
