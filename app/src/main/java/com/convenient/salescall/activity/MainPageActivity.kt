@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.provider.CallLog
 import android.provider.Settings
 import android.telephony.TelephonyManager
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
@@ -31,7 +32,6 @@ import com.convenient.salescall.network.ApiService
 import com.convenient.salescall.network.NetworkManager
 import com.convenient.salescall.pages.CallLogsFragment
 import com.convenient.salescall.pages.DialFragment
-import com.convenient.salescall.pages.RecordsFragment
 import com.convenient.salescall.pages.StatisticsFragment
 import com.convenient.salescall.receiver.MessageCenter
 import com.convenient.salescall.service.CallStateService
@@ -50,7 +50,7 @@ import java.util.UUID
 class MainPageActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "MainPageActivity"
+        private const val TAG = "主页"
         private const val PERMISSION_REQUEST_CODE = 123
         private val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -63,7 +63,8 @@ class MainPageActivity : AppCompatActivity() {
     }
 
     private val dialFragment = DialFragment()
-    private val recordsFragment = RecordsFragment()
+
+    //    private val recordsFragment = RecordsFragment()
     private val statisticsFragment = StatisticsFragment()
     private val recordFragment = CallLogsFragment()
     private var activeFragment: Fragment = dialFragment
@@ -105,14 +106,14 @@ class MainPageActivity : AppCompatActivity() {
                     "com.call.ACTION_DOWN" -> {
                         // 这里处理 ACTION_DOWN 的逻辑
                         LogUtils.d(TAG, "收到通话结束的通知")
-                        lifecycleScope.launch {
-                            delay(500) // 延迟500毫秒
-                            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
-                                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
-                            ) {
-                                readCallLogs()
-                            }
-                        }
+//                        lifecycleScope.launch {
+//                            delay(500) // 延迟500毫秒
+//                            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
+//                                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
+//                            ) {
+//                                readCallLogs()
+//                            }
+//                        }
                     }
                 }
             }
@@ -163,20 +164,26 @@ class MainPageActivity : AppCompatActivity() {
     @RequiresPermission(allOf = [Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_NUMBERS, Manifest.permission.READ_PHONE_STATE])
     override fun onResume() {
         super.onResume()
-//        LogUtils.d(TAG, "onResume")
-//        try {
-//            lifecycleScope.launch {
-//                withContext(Dispatchers.IO) {
-//                    readCallLogs()
-//                }
-//            }
-//        } catch (e: Exception) {
-//            Log.e(TAG, "onResume: 发生未知错误")
-//        }
+        Log.d(TAG, "onResume: ")
+
+        lifecycleScope.launch {
+            delay(500) // 延迟500毫秒
+            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
+                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
+            ) {
+                readCallLogs()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause: ")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "onDestroy: ")
         stopService(Intent(this, CallStateService::class.java))
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localReceiver)
     }
@@ -294,8 +301,9 @@ class MainPageActivity : AppCompatActivity() {
             return
         }
 
-        // 检查权限
+        // 检查内存读取权限
         if (!PermissionHelper.hasStoragePermission(applicationContext)) {
+            LogUtils.d(TAG, "没有内存读取权限")
             showPermissionDialog()
             return
         }
@@ -327,6 +335,7 @@ class MainPageActivity : AppCompatActivity() {
 
             // 如果idIndex为-1，直接结束
             if (idIndex == -1) {
+                LogUtils.d(TAG, "查询通话记录失败")
                 return
             }
 
@@ -343,9 +352,11 @@ class MainPageActivity : AppCompatActivity() {
                 if (type == CallLog.Calls.OUTGOING_TYPE) {
                     val logTime = localDataUtils.getFistInstallTime()
                     if (date > logTime) {
+                        LogUtils.d(TAG, "查询的通话ID${id}")
                         val readRecord = callRepository.getByCallLogId(id)
                         //还未插入本地的数据库则插入
                         if (readRecord == null) {
+                            LogUtils.d(TAG, "通话${id}第一次插入")
                             var path = ""   //录音文件地址
                             if (duration != 0) {
                                 //通话已接通则去查找匹配的录音文件
@@ -353,7 +364,7 @@ class MainPageActivity : AppCompatActivity() {
                             }
 
                             val telephonyManager =
-                                applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                                applicationContext.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
                             var phoneNumber = telephonyManager.line1Number ?: "无法获取号码"
                             phoneNumber = phoneNumber.replace("+86", "")
 
@@ -375,6 +386,7 @@ class MainPageActivity : AppCompatActivity() {
                             mViewModel.performUploadCallLog(callRecord)
                         } else {
                             if (!readRecord.isUploaded) {
+                                LogUtils.d(TAG, "通话${id}未上传，请求上传")
                                 if (readRecord.isConnected && readRecord.recordFilePath.isEmpty()) {
                                     var path = ""   //录音文件地址
                                     if (duration != 0) {
@@ -386,7 +398,7 @@ class MainPageActivity : AppCompatActivity() {
                                 //处理未上传的情况
                                 mViewModel.performUploadCallLog(readRecord)
                             } else {
-                                LogUtils.d(TAG, "通话${readRecord.callLogId} 已上传")
+                                LogUtils.d(TAG, "通话${id} 已上传")
                             }
                         }
                     }

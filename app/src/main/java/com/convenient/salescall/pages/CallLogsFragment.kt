@@ -2,23 +2,17 @@ package com.convenient.salescall.pages
 
 import android.Manifest
 import android.content.ContentResolver
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CallLog
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.convenient.salescall.activity.LoginActivity
-import com.convenient.salescall.activity.MainPageActivity
-import com.convenient.salescall.activity.MainPageActivity.Companion
 import com.convenient.salescall.adapter.CallLogAdapter
 import com.convenient.salescall.databinding.FragmentRecordBinding
 import com.convenient.salescall.datas.CallLogItem
@@ -53,23 +47,6 @@ class CallLogsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = CallLogViewModel(apiService)
-
-        mViewModel.uploadResult.observe(viewLifecycleOwner) { result ->
-            result.onSuccess {
-                Log.d(TAG, "uploadResult: 上传成功")
-            }.onFailure { e ->
-                if (e.message.equals("登录过期")) {
-                    requireActivity().startActivity(
-                        Intent(
-                            requireActivity(), LoginActivity::class.java
-                        )
-                    )
-                    requireActivity().finish()
-                } else {
-                    Log.d(TAG, "uploadResult: 上传失败")
-                }
-            }
-        }
 
         setupListView()
     }

@@ -1,6 +1,5 @@
 package com.convenient.salescall.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -159,12 +158,12 @@ class CallLogViewModel(private val apiService: ApiService) : ViewModel() {
                             } else {
                                 _uploadCallLogResult.postValue(Result.failure(Exception("请求出错: ${it.msg}")))
                             }
-                        }
+                        } ?: _uploadCallLogResult.postValue(Result.failure(Exception("请求体为空")))
                     } else {
-                        _uploadResult.postValue(Result.failure(Exception("请求失败: ${response.code()}")))
+                        _uploadCallLogResult.postValue(Result.failure(Exception("请求失败: ${response.code()}")))
                     }
                 } catch (e: Exception) {
-                    _uploadResult.postValue(Result.failure(e))
+                    _uploadCallLogResult.postValue(Result.failure(e))
                 }
             }
         }
