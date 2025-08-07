@@ -106,14 +106,26 @@ class MainPageActivity : AppCompatActivity() {
                     "com.call.ACTION_DOWN" -> {
                         // 这里处理 ACTION_DOWN 的逻辑
                         LogUtils.d(TAG, "收到通话结束的通知")
-//                        lifecycleScope.launch {
-//                            delay(500) // 延迟500毫秒
-//                            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
-//                                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
-//                            ) {
-//                                readCallLogs()
-//                            }
-//                        }
+                        lifecycleScope.launch {
+                            delay(500) // 延迟500毫秒
+                            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
+                                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
+                            ) {
+                                readCallLogs()
+                            }
+                        }
+                    }
+
+                    "com.call.ACTION_UPLOAD" -> {
+                        // 这里处理 ACTION_DOWN 的逻辑
+                        LogUtils.d(TAG, "收到上传数据的通知")
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
+                                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
+                            ) {
+                                readCallLogs()
+                            }
+                        }
                     }
                 }
             }
@@ -121,7 +133,12 @@ class MainPageActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(localReceiver, IntentFilter("com.call.ACTION_MSG"))
         LocalBroadcastManager.getInstance(this)
-            .registerReceiver(localReceiver, IntentFilter("com.call.ACTION_DOWN"))
+            .registerReceiver(
+                localReceiver,
+                IntentFilter("com.call.ACTION_DOWN")
+            )
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(localReceiver, IntentFilter("com.call.ACTION_UPLOAD"))
 
         mViewModel = CallLogViewModel(apiService)
 

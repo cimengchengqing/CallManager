@@ -2,6 +2,7 @@ package com.convenient.salescall.pages
 
 import android.Manifest
 import android.content.ContentResolver
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
@@ -13,7 +14,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.convenient.salescall.adapter.CallLogAdapter
+import com.convenient.salescall.app.CallApp
 import com.convenient.salescall.databinding.FragmentRecordBinding
 import com.convenient.salescall.datas.CallLogItem
 import com.convenient.salescall.network.ApiService
@@ -71,6 +74,8 @@ class CallLogsFragment : Fragment() {
         if (!hidden) {
             // Fragment被show出来
             readCallLogs()
+            val localIntent = Intent("com.call.ACTION_UPLOAD")
+            LocalBroadcastManager.getInstance(CallApp.appContext).sendBroadcast(localIntent)
         } else {
             // Fragment被hide
         }
