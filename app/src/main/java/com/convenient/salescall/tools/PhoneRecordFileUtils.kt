@@ -255,6 +255,52 @@ object PhoneRecordFileUtils {
     }
 
     /**
+     * 指定路径和呼出号码搜索
+     */
+    fun searchInPath(customPath: String, callNum: String): List<RecordFileInfo> {
+        LogUtils.d("主页", "searchInPath customPath：${customPath}")
+        val dir = File(customPath)
+        if (!dir.exists() || !dir.isDirectory || !dir.canRead()) {
+            return emptyList()
+        }
+        return try {
+            val files = dir.listFiles() ?: return emptyList()
+            val startTime = System.currentTimeMillis()
+            LogUtils.d("主页", "test startTime:$startTime")
+            val filterResult = files.filter { file ->
+                file.isFile
+                        && file.canRead()
+                        && SUPPORTED_AUDIO_FORMATS.any { file.name.lowercase().endsWith(it) }
+                        && file.name.contains(callNum)
+            }
+            if (filterResult.size > 0) {
+                LogUtils.d(
+                    "主页",
+                    "test 耗时:${(System.currentTimeMillis() - startTime) / (1000)}秒"
+                )
+                filterResult.sortedByDescending { it.lastModified() }
+
+                mutableListOf(
+                    RecordFileInfo(
+                        filePath = filterResult[0].absolutePath,
+                        fileName = filterResult[0].name,
+                        fileSize = filterResult[0].length(),
+                        createTime = java.util.Date(filterResult[0].lastModified()),
+                        duration = getAudioDuration(filterResult[0]),
+                        fileType = getFileExtension(filterResult[0].name),
+                        remark = "手机通话录音",
+                        uploadStatus = UploadStatus.PENDING
+                    )
+                )
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
      * 获取音频文件时长
      */
     private fun getAudioDuration(file: File): Long {

@@ -1,5 +1,6 @@
 package com.convenient.salescall.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -126,6 +127,7 @@ class CallLogViewModel(private val apiService: ApiService) : ViewModel() {
      * 上传单条通话信息（含录音）
      */
     fun performUploadCallLog(logBean: CallRecord) {
+        Log.d("主页", "上传通话信息: ${logBean.callLogId}")
         viewModelScope.launch(Dispatchers.IO) {
             uploadMutex.withLock { // 保证串行执行
                 try {

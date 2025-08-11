@@ -148,7 +148,7 @@ class MainPageActivity : AppCompatActivity() {
                     withContext(Dispatchers.IO) {
                         bean.isUploaded = true
                         callRepository.update(bean)
-                        LogUtils.d(TAG, "通话记录上传成功(含录音文件)")
+                        LogUtils.d(TAG, "通话记录上传成功：id = ${bean.callLogId}")
                     }
                 }
             }.onFailure { e ->
@@ -183,14 +183,14 @@ class MainPageActivity : AppCompatActivity() {
         super.onResume()
         Log.d(TAG, "onResume: ")
 
-        lifecycleScope.launch {
-            delay(500) // 延迟500毫秒
-            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
-                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
-            ) {
-                readCallLogs()
-            }
-        }
+//        lifecycleScope.launch {
+//            delay(500) // 延迟500毫秒
+//            withContext(Dispatchers.IO) @androidx.annotation.RequiresPermission(
+//                allOf = [android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_NUMBERS, android.Manifest.permission.READ_PHONE_STATE]
+//            ) {
+//                readCallLogs()
+//            }
+//        }
     }
 
     override fun onPause() {
@@ -377,7 +377,7 @@ class MainPageActivity : AppCompatActivity() {
                             var path = ""   //录音文件地址
                             if (duration != 0) {
                                 //通话已接通则去查找匹配的录音文件
-                                path = findRecordFile(number, date)
+                                path = findRecordFile(number)
                             }
 
                             val telephonyManager =
@@ -408,7 +408,7 @@ class MainPageActivity : AppCompatActivity() {
                                     var path = ""   //录音文件地址
                                     if (duration != 0) {
                                         //通话已接通则去查找匹配的录音文件
-                                        path = findRecordFile(number, date)
+                                        path = findRecordFile(number)
                                     }
                                     readRecord.recordFilePath = path
                                 }
@@ -427,11 +427,11 @@ class MainPageActivity : AppCompatActivity() {
     /**
      * 根据拨打的电话号码查找录音文件并返回文件位置
      */
-    private suspend fun findRecordFile(callNumber: String, date: Long): String {
+    private suspend fun findRecordFile(callNumber: String): String {
         var path = ""
         try {
             // 在IO线程中获取录音文件
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.IO) {
                 //寻找可用的路径
                 val feasibleDir = PhoneRecordFileUtils.getRecordFiles()
                 val allFiles: List<RecordFileInfo> =
@@ -440,7 +440,7 @@ class MainPageActivity : AppCompatActivity() {
                     } else {
                         //将每个输入的路径映射到一个 List<MiuiRecordFileInfo>，然后合并返回
                         feasibleDir.flatMap { path ->
-                            PhoneRecordFileUtils.searchInPath(path)
+                            PhoneRecordFileUtils.searchInPath(path,callNumber)
                         }
                     }
 
@@ -451,10 +451,6 @@ class MainPageActivity : AppCompatActivity() {
                         //录音文件名包含被呼叫的电话，以及创建时间是在呼叫的某个时间范围内
                         LogUtils.d(TAG, "fileName：${file.fileName}______callNumber:$callNumber")
                         if (file.fileName.contains(callNumber)
-//                            && isWithinRange(
-//                                file.createTime.time,
-//                                date
-//                            )
                         ) {
                             path = file.filePath
                             return@forEach
