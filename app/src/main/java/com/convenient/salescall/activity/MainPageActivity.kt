@@ -436,7 +436,8 @@ class MainPageActivity : AppCompatActivity() {
                 val feasibleDir = PhoneRecordFileUtils.getRecordFiles()
                 val allFiles: List<RecordFileInfo> =
                     if (feasibleDir.isEmpty()) {
-                        PhoneRecordFileUtils.getRecordFileList()
+//                        PhoneRecordFileUtils.getRecordFileList()
+                        emptyList()
                     } else {
                         //将每个输入的路径映射到一个 List<MiuiRecordFileInfo>，然后合并返回
                         feasibleDir.flatMap { path ->

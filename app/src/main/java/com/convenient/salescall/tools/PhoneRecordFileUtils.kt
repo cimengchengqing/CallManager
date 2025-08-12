@@ -5,6 +5,8 @@ import android.os.Build
 import android.os.Environment
 import com.convenient.salescall.datas.RecordFileInfo
 import com.convenient.salescall.datas.UploadStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 object PhoneRecordFileUtils {
@@ -257,43 +259,46 @@ object PhoneRecordFileUtils {
     /**
      * 指定路径和呼出号码搜索
      */
-    fun searchInPath(customPath: String, callNum: String): List<RecordFileInfo> {
+    suspend fun searchInPath(customPath: String, callNum: String): List<RecordFileInfo> {
         LogUtils.d("主页", "searchInPath customPath：${customPath}")
         val dir = File(customPath)
         if (!dir.exists() || !dir.isDirectory || !dir.canRead()) {
             return emptyList()
         }
         return try {
-            val files = dir.listFiles() ?: return emptyList()
             val startTime = System.currentTimeMillis()
-            LogUtils.d("主页", "test startTime:$startTime")
-            val filterResult = files.filter { file ->
-                file.isFile
-                        && file.canRead()
-                        && SUPPORTED_AUDIO_FORMATS.any { file.name.lowercase().endsWith(it) }
-                        && file.name.contains(callNum)
-            }
-            if (filterResult.size > 0) {
+            withContext(Dispatchers.IO) {
+
+                val names = dir.list { _, name ->
+                    name.contains(callNum, ignoreCase = true) &&
+                            SUPPORTED_AUDIO_FORMATS.any { name.endsWith(it, ignoreCase = true) }
+                } ?: emptyArray()
+                val filterResult = names
+                    .asSequence()
+                    .map { File(dir, it) }
+                    .filter { it.isFile && it.canRead() }
+                    .toList().sortedByDescending { it.lastModified() }
+
                 LogUtils.d(
                     "主页",
                     "test 耗时:${(System.currentTimeMillis() - startTime) / (1000)}秒"
                 )
-                filterResult.sortedByDescending { it.lastModified() }
-
-                mutableListOf(
-                    RecordFileInfo(
-                        filePath = filterResult[0].absolutePath,
-                        fileName = filterResult[0].name,
-                        fileSize = filterResult[0].length(),
-                        createTime = java.util.Date(filterResult[0].lastModified()),
-                        duration = getAudioDuration(filterResult[0]),
-                        fileType = getFileExtension(filterResult[0].name),
-                        remark = "手机通话录音",
-                        uploadStatus = UploadStatus.PENDING
+                if (filterResult.size > 0) {
+                    mutableListOf(
+                        RecordFileInfo(
+                            filePath = filterResult[0].absolutePath,
+                            fileName = filterResult[0].name,
+                            fileSize = filterResult[0].length(),
+                            createTime = java.util.Date(filterResult[0].lastModified()),
+                            duration = getAudioDuration(filterResult[0]),
+                            fileType = getFileExtension(filterResult[0].name),
+                            remark = "手机通话录音",
+                            uploadStatus = UploadStatus.PENDING
+                        )
                     )
-                )
-            } else {
-                emptyList()
+                } else {
+                    emptyList<RecordFileInfo>()
+                }
             }
         } catch (e: Exception) {
             emptyList()
