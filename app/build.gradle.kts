@@ -106,6 +106,9 @@ dependencies {
     //极光推送
     implementation(libs.jiguang.jpush)      // 必选，此处以JPush 5.6.0 版本为例，注意：5.0.0 版本开始可以自动拉取 JCore 包，无需另外配置
 
+    //netty 网络通信库
+    implementation("io.netty:netty-all:4.1.68.Final")
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)

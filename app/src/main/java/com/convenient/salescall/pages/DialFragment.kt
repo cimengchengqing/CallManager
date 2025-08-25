@@ -10,9 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.convenient.salescall.databinding.FragmentDialBinding
 import com.convenient.salescall.receiver.MessageCenter
 import com.convenient.salescall.tools.LogUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class DialFragment : Fragment() {
 
@@ -23,9 +26,11 @@ class DialFragment : Fragment() {
     private val messageListener: (String) -> Unit = { msg ->
         // 这里处理消息
         LogUtils.d("拨号", "收到拨号请求$msg")
-        phoneNumber.clear().append(msg)
-        updatePhoneNumberDisplay()
-        makePhoneCall(msg)
+        lifecycleScope.launch(Dispatchers.Main) {
+            phoneNumber.clear().append(msg)
+            updatePhoneNumberDisplay()
+            makePhoneCall(msg)
+        }
     }
 
     override fun onCreateView(

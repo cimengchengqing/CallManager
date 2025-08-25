@@ -6,6 +6,10 @@ import cn.jiguang.api.utils.JCollectionAuth
 import cn.jpush.android.api.JPushInterface
 import com.convenient.salescall.tools.LogUtils
 
+
+var TCP_CONNECT_IP: String = "8.137.165.135"
+var TCP_CONNECT_PORT: Int = 8434
+
 class CallApp : Application() {
     companion object {
         lateinit var appContext: Context

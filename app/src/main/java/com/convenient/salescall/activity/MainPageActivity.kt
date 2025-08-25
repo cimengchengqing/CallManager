@@ -25,6 +25,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.convenient.salescall.R
+import com.convenient.salescall.app.TCP_CONNECT_IP
+import com.convenient.salescall.app.TCP_CONNECT_PORT
 import com.convenient.salescall.call_db.CallRecord
 import com.convenient.salescall.call_db.CallRecordRepository
 import com.convenient.salescall.datas.RecordFileInfo
@@ -37,10 +39,12 @@ import com.convenient.salescall.receiver.MessageCenter
 import com.convenient.salescall.service.CallStateService
 import com.convenient.salescall.tools.LocalDataUtils
 import com.convenient.salescall.tools.LogUtils
+import com.convenient.salescall.tools.NettyClient
 import com.convenient.salescall.tools.PermissionHelper
 import com.convenient.salescall.tools.PhoneRecordFileUtils
 import com.convenient.salescall.viewmodel.CallLogViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.netty.channel.Channel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,6 +52,8 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class MainPageActivity : AppCompatActivity() {
+    val nettyClient = NettyClient(TCP_CONNECT_IP, TCP_CONNECT_PORT)
+    lateinit var channel: Channel
 
     companion object {
         private const val TAG = "主页"
@@ -96,11 +102,11 @@ class MainPageActivity : AppCompatActivity() {
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
                     "com.call.ACTION_MSG" -> {
-                        val msg = intent.getStringExtra("msg")
-                        LogUtils.d(TAG, "收到消息$msg")
-                        msg?.let {
-                            MessageCenter.post(it)
-                        }
+//                        val msg = intent.getStringExtra("msg")
+//                        LogUtils.d(TAG, "收到消息$msg")
+//                        msg?.let {
+//                            MessageCenter.post(it)
+//                        }
                     }
 
                     "com.call.ACTION_DOWN" -> {
@@ -176,6 +182,21 @@ class MainPageActivity : AppCompatActivity() {
         }
         allGranted = true
         registerService()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                NettyClient(TCP_CONNECT_IP, TCP_CONNECT_PORT).apply {
+                    start()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
     }
 
     @RequiresPermission(allOf = [Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_NUMBERS, Manifest.permission.READ_PHONE_STATE])
@@ -199,6 +220,7 @@ class MainPageActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        nettyClient.shutdown()
         super.onDestroy()
         Log.d(TAG, "onDestroy: ")
         stopService(Intent(this, CallStateService::class.java))
@@ -441,7 +463,7 @@ class MainPageActivity : AppCompatActivity() {
                     } else {
                         //将每个输入的路径映射到一个 List<MiuiRecordFileInfo>，然后合并返回
                         feasibleDir.flatMap { path ->
-                            PhoneRecordFileUtils.searchInPath(path,callNumber)
+                            PhoneRecordFileUtils.searchInPath(path, callNumber)
                         }
                     }
 

@@ -18,8 +18,8 @@ class LoginViewModel(private val apiService: ApiService) : ViewModel() {
     private val localDataUtils: LocalDataUtils by lazy {
         LocalDataUtils()
     }
-    private val _loginResult = MutableLiveData<Result<ApiService.AppResponse<Unit>>>()
-    val loginResult: LiveData<Result<ApiService.AppResponse<Unit>>> = _loginResult
+    private val _loginResult = MutableLiveData<Result<String>>()
+    val loginResult: LiveData<Result<String>> = _loginResult
 
     private val _captchaImageResult = MutableLiveData<Result<ResponseBody>>()
     val captchaImageResult: LiveData<Result<ResponseBody>> = _captchaImageResult
@@ -76,12 +76,7 @@ class LoginViewModel(private val apiService: ApiService) : ViewModel() {
                     Log.e(TAG, "请求成功")
                     response.body()?.let {
                         if (it.code == 0) {
-//                            JSESSIONID = localDataUtils.getAuthCookie()
-//                                .substringAfter("JSESSIONID=")
-//                                .substringBefore(";")
-//                            localDataUtils.saveAuthCookie(JSESSIONID)
-//                            Log.d(TAG, "登录后JSESSIONID:$JSESSIONID ")
-                            _loginResult.postValue(Result.success(it))
+                            _loginResult.postValue(Result.success(response.body()!!.data))
                         } else {
                             _loginResult.postValue(Result.failure(Exception("请求错误: ${it.msg}")))
                         }

@@ -44,7 +44,7 @@ interface ApiService {
         @Field("password") password: String,
         @Field("validateCode") validateCode: Int,
         @Field("rememberMe") rememberMe: Boolean
-    ): Response<AppResponse<Unit>>
+    ): Response<AppResponse<String>>
 
     /**
      * 通话信息上传

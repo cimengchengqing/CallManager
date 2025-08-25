@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.jpush.android.api.JPushInterface
 import com.convenient.salescall.databinding.LoginLayoutBinding
+import com.convenient.salescall.datas.UuidPrefs
 import com.convenient.salescall.network.ApiService
 import com.convenient.salescall.network.NetworkManager
 import com.convenient.salescall.tools.LocalDataUtils
@@ -99,7 +100,10 @@ class LoginActivity : AppCompatActivity() {
         }
 
         mViewModel.loginResult.observe(this) { result ->
-            result.onSuccess {
+            result.onSuccess { uuid ->
+                if (uuid != null && uuid.isNotEmpty()) {
+                    UuidPrefs.saveUuid(this@LoginActivity.applicationContext, uuid)
+                }
                 Toast.makeText(this@LoginActivity, "登录成功", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this@LoginActivity, MainPageActivity::class.java))
                 localDataUtils.setLogin(true)
