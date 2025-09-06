@@ -33,11 +33,18 @@ import kotlin.math.pow
 
 class NettyClient(private val host: String, private val port: Int) {
     private val group = NioEventLoopGroup()
-    private lateinit var channel: Channel
     private var retryCount = 0
     private val maxRetryDelay = 30L
 
+    // 新增连接状态变量
+    private var isConnected = false
+    private var currentChannel: Channel? = null
+
     fun start() {
+        if (isConnected) {
+            LogUtils.d("NettyClient", "Already connected")
+            return
+        }
         val bootstrap = Bootstrap().apply {
             group(group)
             channel(NioSocketChannel::class.java)
@@ -61,13 +68,16 @@ class NettyClient(private val host: String, private val port: Int) {
     }
 
     private fun connect(bootstrap: Bootstrap) {
+        currentChannel?.close() // 关闭旧连接
         val future = bootstrap.connect(host, port).addListener { future ->
             if (future.isSuccess) {
-                channel = (future as ChannelFuture).channel()
+                currentChannel = (future as ChannelFuture).channel()
+                isConnected = true
                 retryCount = 0
                 LogUtils.d("NettyClient", "Connected to $host:$port")
                 // 连接成功后立即发送鉴权消息
             } else {
+                isConnected = false
                 retryCount++
                 val delay = minOf(2.0.pow(retryCount).toLong(), maxRetryDelay)
                 LogUtils.d("NettyClient", "Connection failed, retrying in $delay seconds...")
@@ -79,6 +89,8 @@ class NettyClient(private val host: String, private val port: Int) {
     }
 
     fun shutdown() {
+        currentChannel?.close() // 关闭旧连接
+        isConnected = false
         group.shutdownGracefully()
     }
 

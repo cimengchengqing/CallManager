@@ -20,8 +20,8 @@ android {
         applicationId = "com.convenient.salescall"
         minSdk = 29
         targetSdk = 33
-        versionCode = 5
-        versionName = "1.5"
+        versionCode = 6
+        versionName = "1.6"
 
         buildConfigField("Boolean", "OPEN_LOG", "true")
 

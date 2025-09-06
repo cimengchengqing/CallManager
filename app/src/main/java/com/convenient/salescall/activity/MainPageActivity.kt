@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.convenient.salescall.R
+import com.convenient.salescall.app.CallApp
 import com.convenient.salescall.app.TCP_CONNECT_IP
 import com.convenient.salescall.app.TCP_CONNECT_PORT
 import com.convenient.salescall.call_db.CallRecord
@@ -35,7 +36,6 @@ import com.convenient.salescall.network.NetworkManager
 import com.convenient.salescall.pages.CallLogsFragment
 import com.convenient.salescall.pages.DialFragment
 import com.convenient.salescall.pages.StatisticsFragment
-import com.convenient.salescall.receiver.MessageCenter
 import com.convenient.salescall.service.CallStateService
 import com.convenient.salescall.tools.LocalDataUtils
 import com.convenient.salescall.tools.LogUtils
@@ -44,7 +44,6 @@ import com.convenient.salescall.tools.PermissionHelper
 import com.convenient.salescall.tools.PhoneRecordFileUtils
 import com.convenient.salescall.viewmodel.CallLogViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import io.netty.channel.Channel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -53,7 +52,6 @@ import java.util.UUID
 
 class MainPageActivity : AppCompatActivity() {
     val nettyClient = NettyClient(TCP_CONNECT_IP, TCP_CONNECT_PORT)
-    lateinit var channel: Channel
 
     companion object {
         private const val TAG = "主页"
@@ -183,9 +181,9 @@ class MainPageActivity : AppCompatActivity() {
         allGranted = true
         registerService()
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        (applicationContext as CallApp).applicationScope.launch(Dispatchers.IO) {
             try {
-                NettyClient(TCP_CONNECT_IP, TCP_CONNECT_PORT).apply {
+                nettyClient.apply {
                     start()
                 }
             } catch (e: Exception) {
