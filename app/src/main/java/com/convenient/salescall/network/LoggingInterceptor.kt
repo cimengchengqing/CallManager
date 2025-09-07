@@ -1,104 +1,68 @@
-package com.convenient.salescall.network.interceptor
+package com.convenient.salescall.network
 
 import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
 import okio.Buffer
-import java.io.IOException
 import java.nio.charset.Charset
+import java.util.concurrent.TimeUnit
 
-/**
- * 网络请求日志拦截器
- */
-class LoggingInterceptor(private val isDebug: Boolean = true) : Interceptor {
-    private val TAG = "NetworkRequest"
-    private val UTF8 = Charset.forName("UTF-8")
+class LoggingInterceptor(
+    private val enable: Boolean,
+    private val tag: String = "HTTP"
+) : Interceptor {
 
-    @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
+        if (!enable) return chain.proceed(chain.request())
+
         val request = chain.request()
+        val t1 = System.nanoTime()
 
-        if (!isDebug) {
-            return chain.proceed(request)
-        }
-
-        val startTime = System.currentTimeMillis()
-
-        // 打印请求信息
-        logRequest(request)
-
-        val response = chain.proceed(request)
-        val endTime = System.currentTimeMillis()
-
-        // 打印响应信息
-        logResponse(response, endTime - startTime)
-
-        return response
-    }
-
-    private fun logRequest(request: okhttp3.Request) {
+        // 打印请求
         try {
-            Log.d(TAG, "╔══════════════════ REQUEST ══════════════════")
-            Log.d(TAG, "║ URL: ${request.url}")
-            Log.d(TAG, "║ Method: ${request.method}")
-
-            // 打印请求头
-            if (request.headers.size > 0) {
-                Log.d(TAG, "║ Headers:")
-                for (i in 0 until request.headers.size) {
-                    Log.d(TAG, "║   ${request.headers.name(i)}: ${request.headers.value(i)}")
-                }
-            }
-
-            // 打印请求体
-            request.body?.let { requestBody ->
+            val requestBody = request.body
+            val reqBodyStr = if (requestBody != null) {
                 val buffer = Buffer()
                 requestBody.writeTo(buffer)
-                val charset = requestBody.contentType()?.charset(UTF8) ?: UTF8
-                val content = buffer.readString(charset)
-                if (content.isNotEmpty()) {
-                    Log.d(TAG, "║ Body: $content")
-                }
-            }
+                buffer.readString(Charset.forName("UTF-8"))
+            } else null
 
-            Log.d(TAG, "╚══════════════════════════════════════════════")
+            Log.d(tag, "--> ${request.method} ${request.url}")
+            if (reqBodyStr?.isNotEmpty() == true) {
+                Log.d(tag, "RequestBody: $reqBodyStr")
+            }
+            request.headers.forEach { Log.d(tag, "Header: ${it.first}: ${it.second}") }
         } catch (e: Exception) {
-            Log.e(TAG, "打印请求日志失败: ${e.message}")
+            Log.w(tag, "Log request error: ${e.message}")
         }
-    }
 
-    private fun logResponse(response: Response, duration: Long) {
-        try {
-            Log.d(TAG, "╔══════════════════ RESPONSE ═════════════════")
-            Log.d(TAG, "║ URL: ${response.request.url}")
-            Log.d(TAG, "║ Code: ${response.code}")
-            Log.d(TAG, "║ Message: ${response.message}")
-            Log.d(TAG, "║ Duration: ${duration}ms")
+        // 执行并打印响应/异常
+        return try {
+            val response = chain.proceed(request)
+            val t2 = System.nanoTime()
+            Log.d(
+                tag,
+                "<-- ${response.code} ${response.message} ${request.url} (${
+                    TimeUnit.NANOSECONDS.toMillis(t2 - t1)
+                }ms)"
+            )
 
-            // 打印响应头
-            if (response.headers.size > 0) {
-                Log.d(TAG, "║ Headers:")
-                for (i in 0 until response.headers.size) {
-                    Log.d(TAG, "║   ${response.headers.name(i)}: ${response.headers.value(i)}")
-                }
-            }
-
-            // 打印响应体
+            // 注意：大体量响应体不建议全量打印，可按需截断
             val responseBody = response.body
-            if (responseBody != null) {
-                val source = responseBody.source()
-                source.request(Long.MAX_VALUE)
-                val buffer = source.buffer
-                val charset = responseBody.contentType()?.charset(UTF8) ?: UTF8
-                val content = buffer.clone().readString(charset)
-                if (content.isNotEmpty()) {
-                    Log.d(TAG, "║ Body: $content")
-                }
+            val source = responseBody?.source()
+            source?.request(Long.MAX_VALUE)
+            val buffer = source?.buffer
+            val charset = responseBody?.contentType()?.charset(Charset.forName("UTF-8"))
+                ?: Charset.forName("UTF-8")
+            val respStr = buffer?.clone()?.readString(charset)
+            if (!respStr.isNullOrEmpty()) {
+                Log.d(tag, "ResponseBody: $respStr")
             }
-
-            Log.d(TAG, "╚══════════════════════════════════════════════")
+            response
         } catch (e: Exception) {
-            Log.e(TAG, "打印响应日志失败: ${e.message}")
+            // 关键：失败也打印
+            Log.e(tag, "<-- HTTP FAILED: ${e.javaClass.simpleName}: ${e.message}")
+            throw e
         }
     }
 }
