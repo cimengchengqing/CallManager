@@ -6,8 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
-
-var TCP_CONNECT_IP: String = "47.109.84.18:8433"
+var TCP_CONNECT_IP: String = "47.109.84.18"
 var TCP_CONNECT_PORT: Int = 8434
 
 class CallApp : Application() {
