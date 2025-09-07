@@ -53,8 +53,8 @@
 
         <activity
             android:name=".activity.LoginActivity"
-            android:launchMode="singleInstance"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleInstance">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,44 +65,14 @@
 
         <activity
             android:name=".activity.MainPageActivity"
-            android:launchMode="singleInstance"
-            android:exported="true">
-
-
-        </activity>
+            android:exported="true"
+            android:launchMode="singleInstance"></activity>
 
         <service
             android:name=".service.CallStateService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="phoneCall" />
-
-        <!-- Since JCore2.0.0 Required SDK核心功能-->
-        <!-- 可配置android:process参数将Service放在其他进程中；android:enabled属性不能是false -->
-        <!-- 这个是自定义Service，要继承极光JCommonService，可以在更多手机平台上使得推送通道保持的更稳定 -->
-        <service android:name=".service.JiGuangService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":pushcore">
-            <intent-filter>
-                <action android:name="cn.jiguang.user.service.action" />
-            </intent-filter>
-        </service>
-
-        <!-- Required since 3.0.7 -->
-        <!-- 新的 tag/alias 接口结果返回需要开发者配置一个自定的广播 -->
-        <!-- 3.3.0开始所有事件将通过该类回调 -->
-        <!-- 该广播需要继承 JPush 提供的 JPushMessageReceiver 类, 并如下新增一个 Intent-Filter -->
-        <receiver
-            android:name=".receiver.JiGuangReceiver"
-            android:enabled="true"
-            android:exported="false" >
-            <intent-filter>
-                <!-- 从 JPush v5.4.0 版本开始，请特别注意 RECEIVER_MESSAGE 写法, 如配置错误则无法找到回调类 -->
-                <action android:name="cn.jpush.android.intent.RECEIVER_MESSAGE" />
-                <category android:name="com.convenient.salescall" />
-            </intent-filter>
-        </receiver>
 
     </application>
 

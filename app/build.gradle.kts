@@ -17,11 +17,11 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.convenient.salescall"
+        applicationId = "com.ronghao.salescall"
         minSdk = 29
         targetSdk = 33
-        versionCode = 6
-        versionName = "1.6"
+        versionCode = 1
+        versionName = "1.0"
 
         buildConfigField("Boolean", "OPEN_LOG", "true")
 
@@ -104,7 +104,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
 
     //极光推送
-    implementation(libs.jiguang.jpush)      // 必选，此处以JPush 5.6.0 版本为例，注意：5.0.0 版本开始可以自动拉取 JCore 包，无需另外配置
+//    implementation(libs.jiguang.jpush)      // 必选，此处以JPush 5.6.0 版本为例，注意：5.0.0 版本开始可以自动拉取 JCore 包，无需另外配置
 
     //netty 网络通信库
     implementation("io.netty:netty-all:4.1.68.Final")

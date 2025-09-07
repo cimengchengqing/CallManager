@@ -5,7 +5,7 @@ package com.convenient.salescall.network
  */
 object NetworkConfig {
     // 基础URL
-    const val BASE_URL = "http://8.137.165.135:8433/"
+    const val BASE_URL = "http://47.109.84.18:8433/"
 
     // 超时时间
     const val CONNECT_TIMEOUT = 30L

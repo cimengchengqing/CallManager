@@ -6,11 +6,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import cn.jpush.android.api.JPushInterface
 import com.convenient.salescall.databinding.LoginLayoutBinding
 import com.convenient.salescall.datas.UuidPrefs
 import com.convenient.salescall.network.ApiService
@@ -60,9 +60,6 @@ class LoginActivity : AppCompatActivity() {
 
         _binding = LoginLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val registrationId = JPushInterface.getRegistrationID(applicationContext)
-        LogUtils.d(TAG, "极光registrationId：$registrationId")
 
         if (localDataUtils.getAutoLogin() && localDataUtils.getAuthCookie().isNotEmpty()
             && localDataUtils.isLogin()
@@ -162,11 +159,10 @@ class LoginActivity : AppCompatActivity() {
 
     private fun initData() {
         mViewModel.getCaptchaImage()
-
-        val registrationId = JPushInterface.getRegistrationID(applicationContext)
-        LogUtils.d(TAG, "极光registrationId：$registrationId")
-        registrationId?.let {
-            localDataUtils.setRegistrationId(it)
+        if (localDataUtils.getRegistrationId().isEmpty()) {
+            val deviceID = getAndroidId(this.applicationContext)
+            LogUtils.d(TAG, "设备ID：${deviceID}")
+            localDataUtils.setRegistrationId(deviceID)
         }
     }
 
@@ -177,5 +173,12 @@ class LoginActivity : AppCompatActivity() {
             val byteArray = output.toByteArray()
             return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
         }
+    }
+
+    fun getAndroidId(context: Context): String {
+        return Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ANDROID_ID
+        ) ?: ""
     }
 }

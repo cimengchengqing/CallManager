@@ -3,7 +3,6 @@ package com.convenient.salescall.tools
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import cn.jpush.android.api.JPushInterface
 import com.convenient.salescall.app.CallApp
 import java.io.File
 import java.security.MessageDigest
@@ -54,9 +53,6 @@ class LocalDataUtils() {
     // 获取极光推送的设备注册ID
     fun getRegistrationId(defaultValue: String = ""): String {
         var id = sharedPreferences.getString(REGISTRATION_ID, defaultValue) ?: defaultValue
-        if (id.isEmpty()) {
-            id = JPushInterface.getRegistrationID(CallApp.appContext)
-        }
         return id
     }
 
