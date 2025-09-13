@@ -25,9 +25,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.convenient.salescall.R
-import com.convenient.salescall.app.CallApp
-import com.convenient.salescall.app.TCP_CONNECT_IP
-import com.convenient.salescall.app.TCP_CONNECT_PORT
 import com.convenient.salescall.call_db.CallRecord
 import com.convenient.salescall.call_db.CallRecordRepository
 import com.convenient.salescall.datas.RecordFileInfo
@@ -37,9 +34,9 @@ import com.convenient.salescall.pages.CallLogsFragment
 import com.convenient.salescall.pages.DialFragment
 import com.convenient.salescall.pages.StatisticsFragment
 import com.convenient.salescall.service.CallStateService
+import com.convenient.salescall.service.SocketKeepAliveService
 import com.convenient.salescall.tools.LocalDataUtils
 import com.convenient.salescall.tools.LogUtils
-import com.convenient.salescall.tools.NettyClient
 import com.convenient.salescall.tools.PermissionHelper
 import com.convenient.salescall.tools.PhoneRecordFileUtils
 import com.convenient.salescall.viewmodel.CallLogViewModel
@@ -51,11 +48,10 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class MainPageActivity : AppCompatActivity() {
-    val nettyClient = NettyClient(TCP_CONNECT_IP, TCP_CONNECT_PORT)
-
     companion object {
         private const val TAG = "主页"
         private const val PERMISSION_REQUEST_CODE = 123
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 456 // 新增通知权限请求码
         private val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -178,23 +174,19 @@ class MainPageActivity : AppCompatActivity() {
             requestPermissions()
             return
         }
+
+        // 检查通知权限
+        if (!checkNotificationPermission()) {
+            requestNotificationPermission()
+        }
+
         allGranted = true
         registerService()
-
-        (applicationContext as CallApp).applicationScope.launch(Dispatchers.IO) {
-            try {
-                nettyClient.apply {
-                    start()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        startSocketKeepAliveService()
     }
 
     override fun onStart() {
         super.onStart()
-
     }
 
     @RequiresPermission(allOf = [Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_NUMBERS, Manifest.permission.READ_PHONE_STATE])
@@ -218,11 +210,42 @@ class MainPageActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        nettyClient.shutdown()
+//        nettyClient.shutdown()
         super.onDestroy()
         Log.d(TAG, "onDestroy: ")
         stopService(Intent(this, CallStateService::class.java))
         LocalBroadcastManager.getInstance(this).unregisterReceiver(localReceiver)
+    }
+
+    /**
+     * 检查通知权限
+     */
+    private fun checkNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val result = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            LogUtils.d(TAG, "通知权限检查结果: $result")
+            result
+        } else {
+            LogUtils.d(TAG, "Android 13 以下系统，无需通知权限")
+            true
+        }
+    }
+
+    /**
+     * 请求通知权限
+     */
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            LogUtils.d(TAG, "请求通知权限")
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                NOTIFICATION_PERMISSION_REQUEST_CODE
+            )
+        }
     }
 
     private fun initViews() {
@@ -287,28 +310,43 @@ class MainPageActivity : AppCompatActivity() {
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            for (result in grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false
-                    break
+        when (requestCode) {
+            PERMISSION_REQUEST_CODE -> {
+                // 处理原有权限
+                for (result in grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        allGranted = false
+                        break
+                    }
                 }
+                if (!allGranted) {
+                    LogUtils.d(TAG, "需要所有权限才能正常使用功能")
+                }
+                registerService()
             }
 
-            if (!allGranted) {
-                LogUtils.d(TAG, "需要所有权限才能正常使用功能 ")
+            NOTIFICATION_PERMISSION_REQUEST_CODE -> {
+                // 处理通知权限
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    LogUtils.d(TAG, "通知权限已授予")
+                    allGranted = true
+                    registerService()
+                    startSocketKeepAliveService()
+                } else {
+                    LogUtils.d(TAG, "通知权限被拒绝，无法显示前台服务通知")
+                    Toast.makeText(this, "需要通知权限才能保持后台连接", Toast.LENGTH_LONG).show()
+                    // 即使没有通知权限，也可以尝试启动服务
+                    allGranted = true
+                    registerService()
+                    startSocketKeepAliveService()
+                }
             }
-            registerService()
         }
     }
 
     private fun registerService() {
         val serviceIntent = Intent(this, CallStateService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
-        }
+        startForegroundService(serviceIntent)
     }
 
     /**
@@ -471,7 +509,7 @@ class MainPageActivity : AppCompatActivity() {
                     allFiles.forEach { file ->
                         //录音文件名包含被呼叫的电话，以及创建时间是在呼叫的某个时间范围内
                         LogUtils.d(TAG, "fileName：${file.fileName}______callNumber:$callNumber")
-                        if (file.fileName.replace(" ","").contains(callNumber)
+                        if (file.fileName.replace(" ", "").contains(callNumber)
                         ) {
                             path = file.filePath
                             return@forEach
@@ -501,6 +539,14 @@ class MainPageActivity : AppCompatActivity() {
         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
         intent.data = ("package:$packageName").toUri()
         startActivity(intent)
+    }
+
+    /**
+     * 开启前台服务
+     */
+    private fun startSocketKeepAliveService() {
+        val intent = Intent(this, SocketKeepAliveService::class.java)
+        startForegroundService(intent)
     }
 
     /**

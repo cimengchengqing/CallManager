@@ -15,6 +15,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <!-- Android 11+ 管理所有文件权限 - 这是关键 -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <!-- 可选：读取媒体音频文件 -->
@@ -66,7 +68,17 @@
         <activity
             android:name=".activity.MainPageActivity"
             android:exported="true"
-            android:launchMode="singleInstance"></activity>
+            android:launchMode="singleInstance" />
+
+        <service
+            android:name=".service.SocketKeepAliveService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <receiver
+            android:name=".receiver.HeartbeatReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
         <service
             android:name=".service.CallStateService"
