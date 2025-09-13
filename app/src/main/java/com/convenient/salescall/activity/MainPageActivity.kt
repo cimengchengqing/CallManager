@@ -471,7 +471,7 @@ class MainPageActivity : AppCompatActivity() {
                     allFiles.forEach { file ->
                         //录音文件名包含被呼叫的电话，以及创建时间是在呼叫的某个时间范围内
                         LogUtils.d(TAG, "fileName：${file.fileName}______callNumber:$callNumber")
-                        if (file.fileName.contains(callNumber)
+                        if (file.fileName.replace(" ","").contains(callNumber)
                         ) {
                             path = file.filePath
                             return@forEach

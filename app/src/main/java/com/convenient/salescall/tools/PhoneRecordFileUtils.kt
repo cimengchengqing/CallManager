@@ -260,30 +260,48 @@ object PhoneRecordFileUtils {
      * 指定路径和呼出号码搜索
      */
     suspend fun searchInPath(customPath: String, callNum: String): List<RecordFileInfo> {
-        LogUtils.d("主页", "searchInPath customPath：${customPath}")
+        LogUtils.d("主页", "searchInPath customPath：${customPath}\nsearchInPath callNum：${callNum}")
         val dir = File(customPath)
         if (!dir.exists() || !dir.isDirectory || !dir.canRead()) {
+            LogUtils.d("主页", "目录检查失败")
             return emptyList()
         }
         return try {
             val startTime = System.currentTimeMillis()
             withContext(Dispatchers.IO) {
 
+                // 清理搜索号码 - 去掉空格、横线等分隔符
+                val cleanCallNumber = callNum.replace(" ", "").replace("-", "").replace("_", "")
+                LogUtils.d("主页", "清理后的搜索号码: $cleanCallNumber")
+
                 val names = dir.list { _, name ->
-                    name.contains(callNum, ignoreCase = true) &&
-                            SUPPORTED_AUDIO_FORMATS.any { name.endsWith(it, ignoreCase = true) }
+                    // 从文件名中提取号码部分（去掉空格、横线等分隔符）
+                    val cleanFileName = name.replace(" ", "")
+                    // 检查是否包含搜索的号码
+                    val containsNumber = cleanFileName.contains(cleanCallNumber, ignoreCase = true)
+                    val hasAudioFormat = SUPPORTED_AUDIO_FORMATS.any {
+                        name.lowercase().endsWith(it.lowercase())
+                    }
+
+                    LogUtils.d("主页", "原文件名: $name")
+                    LogUtils.d("主页", "清理后文件名: $cleanFileName")
+                    LogUtils.d("主页", "包含号码: $containsNumber, 音频格式: $hasAudioFormat")
+
+                    containsNumber && hasAudioFormat
                 } ?: emptyArray()
+
+                LogUtils.d("主页", "匹配的文件数: ${names.size}")
+
                 val filterResult = names
                     .asSequence()
                     .map { File(dir, it) }
                     .filter { it.isFile && it.canRead() }
                     .toList().sortedByDescending { it.lastModified() }
 
-                LogUtils.d(
-                    "主页",
-                    "test 耗时:${(System.currentTimeMillis() - startTime) / (1000)}秒"
-                )
-                if (filterResult.size > 0) {
+                LogUtils.d("主页", "最终结果数: ${filterResult.size}")
+                LogUtils.d("主页", "搜索耗时: ${(System.currentTimeMillis() - startTime)}ms")
+
+                if (filterResult.isNotEmpty()) {
                     mutableListOf(
                         RecordFileInfo(
                             filePath = filterResult[0].absolutePath,
@@ -301,6 +319,7 @@ object PhoneRecordFileUtils {
                 }
             }
         } catch (e: Exception) {
+            LogUtils.e("主页", "搜索异常: ${e.message}")
             emptyList()
         }
     }
